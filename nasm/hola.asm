@@ -52,7 +52,38 @@ section .data
 
     mov eax, 4
     mov ebx, 1
-    
+    mov ecx, msg_res
+    mov edx, 12
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, result
+    mov edx, 1
+    int 0x80
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, exit_msg
+    mov edx, 60
+    int 0x80
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, buffer
+    mov edx, 4
+    int 0x80
+
+    cmp dword [buffer], 0x747865
+    je salir
+
+    jmp loop
+
+    salir:
+
+    mov eax, 1
+    mov ebx, 0
+    int 0x80
 
 
 
