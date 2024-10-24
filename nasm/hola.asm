@@ -127,7 +127,7 @@ loop:                                                       ; Solicitar los núm
     mov eax, 4
     mov ebx, 1
     mov ecx, error_zero
-    mov edx, 25
+    mov edx, 23
     int 0x80
     jmp loop
 
@@ -138,7 +138,7 @@ loop:                                                       ; Solicitar los núm
     mov eax, 4
     mov ebx, 1
     mov ecx, msg_res
-    mov edx, 12
+    mov edx, 11
     int 0x80
 
     mov eax, 4
@@ -147,6 +147,7 @@ loop:                                                       ; Solicitar los núm
     mov edx, 1
     int 0x80
 
+    ;Preguntar si el usuario desea continuar
     mov eax, 4
     mov ebx, 1
     mov ecx, exit_msg
@@ -159,7 +160,7 @@ loop:                                                       ; Solicitar los núm
     mov edx, 4
     int 0x80
 
-    cmp dword [buffer], 0x747865
+    cmp dword [buffer], 0x747865  ;Comprobar si el usuario escribio "exit"
     je salir
 
     jmp loop
@@ -170,5 +171,68 @@ loop:                                                       ; Solicitar los núm
     mov ebx, 0
     int 0x80
 
+    ;Convertir las entradas
+    parse_number1:
+        ;Convierte el número en num1 de ASCII a ENTERO (Incluye signo Negativo)
+        ;Aqui se considera el primer caracter como posible signo Negativo
+        mov esi, num1
+        xor eax, eax
+        xor ebx, ebx
+        mov bl, [esi]       ;Primer Caracter
+        cmp bl, '-'
+        jne parse_positive1
+        inc esi             ;Si es negativo, avanzar el puntero
+        call parse_digits1
+        neg eax             ;Hace el numero negativo
+        ret 
+    
+    parse_positive1:
+        call parse_digits1
+        ret
 
+    parse_digits1:
+        ;Convierte los caracteres en número
+        mov ecx, 10
+    convert_loop1:
+        mov bl, [esi]
+        cmp bl, 0xA         ;Fin de la linea
+        je end_parse1
+        sub bl, '0'
+        imul eax, ecx
+        add eax, ebx
+        inc esi
+        jmp convert_loop1
+    end_parse1:
+        mov[num1], eax
+        ret
 
+    parse_number2:
+        mov esi, num2
+        xor eax, eax
+        xor ebx, ebx
+        mov bl, [esi]
+        cmp bl, '-'
+        jne parse_positive2
+        inc esi
+        call parse_digits2
+        neg eax
+        ret
+
+    parse_positive2:
+        call parse_digits2
+        ret
+
+    parse_digits2:
+        mov ecx, 10
+    convert_loop2:
+        mov bl, [esi]
+        cmp bl, 0xA
+        je end_parse2
+        sub bl, '0'
+        imul eax, ecx
+        add eax, ebx
+        inc esi
+        jmp convert_loop2
+    end_parse2:
+        mov[num2], eax
+        ret
